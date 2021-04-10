@@ -1,0 +1,12 @@
+node_modules
+/build
+
+
+# local env files
+
+
+# Log files
+
+
+# Editor directories and files
+.vscode
