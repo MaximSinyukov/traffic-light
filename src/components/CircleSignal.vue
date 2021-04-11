@@ -30,12 +30,26 @@ export default {
       if (this.$route.params.color === this.signal.colorBack) {
       const interval = setInterval(() => {
         this.counter--
+        this.blink()
         if (this.counter === 0) {
           clearInterval(interval)
           this.$emit('change-signal', this.signal.id)
           this.counter = this.signal.expirationTime
         }
       }, 1000)
+      }
+    },
+    blink() {
+      if (this.counter === 3) {
+        let blinkCounter = 0;
+        const blinkInterval = setInterval(() => {
+          blinkCounter++
+          this.signal.active = !this.signal.active
+          if (blinkCounter === 11) {
+            clearInterval(blinkInterval)
+            this.signal.active = true
+          }
+        }, 250)
       }
     }
   },
@@ -60,7 +74,7 @@ export default {
   line-height: 120px;
   display: flex;
   justify-content: center;
-  transition: opacity .5s ease-out;
+  transition: opacity .4s ease-out;
   opacity: .5;
 }
 
