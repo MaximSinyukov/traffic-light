@@ -60,5 +60,10 @@ export default {
   font-size: 70px;
   font-weight: 500;
   color: black;
+  visibility: hidden;
+}
+
+.circle-signal_active .circle-signal__counter {
+  visibility: visible;
 }
 </style>
