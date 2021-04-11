@@ -1,15 +1,14 @@
 <template>
   <div id="app">
     <h1>Traffic light</h1>
-    <TrafficLight
+    <SignalsBox
       v-bind:signals="signals"
     />
   </div>
 </template>
 
 <script>
-import TrafficLight from '@/components/TrafficLight'
-
+import SignalsBox from '@/components/SignalsBox'
 export default {
   name: 'app',
   data() {
@@ -22,7 +21,7 @@ export default {
     }
   },
   components: {
-    TrafficLight
+    SignalsBox
   }
 }
 </script>
