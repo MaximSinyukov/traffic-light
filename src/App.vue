@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <h1>Traffic light</h1>
-    <TrafficLight />
+    <TrafficLight
+      v-bind:signals="signals"
+    />
   </div>
 </template>
 
@@ -10,6 +12,15 @@ import TrafficLight from '@/components/TrafficLight'
 
 export default {
   name: 'app',
+  data() {
+    return {
+      signals: [
+        {id: 1, colorBack: 'red', expirationTime: 10, active: false},
+        {id: 2, colorBack: 'yellow', expirationTime: 3, active: false},
+        {id: 3, colorBack: 'green', expirationTime: 15, active: false},
+      ]
+    }
+  },
   components: {
     TrafficLight
   }

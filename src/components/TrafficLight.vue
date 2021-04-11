@@ -1,18 +1,37 @@
 <template>
-  <div class="traffic-light"></div>
+  <div class="traffic-light">
+    <CircleSignal
+      v-for="signal of signals" :key="signal.id"
+      v-bind:signal="signal"
+    />
+  </div>
 </template>
+
+<script>
+import CircleSignal from '@/components/CircleSignal'
+export default {
+  props: {
+    signals: {
+      type: Array,
+      require: true
+    }
+  },
+  components: {
+    CircleSignal
+  }
+}
+</script>
 
 <style>
 .traffic-light {
-	background:#333;
-	width: 150px;
-	height: 440px;
-	border-radius: 10px;
-	font-size: 70px;
-	text-align: center;
-	padding: 1px 0;
-	border: 6px solid #000;
-	margin: auto;
-	margin: 0 auto;
+  background:#333;
+  width: 150px;
+  height: 440px;
+  border-radius: 10px;
+  font-size: 70px;
+  text-align: center;
+  padding: 1px 0;
+  border: 6px solid #000;
+  margin: 0 auto;
 }
 </style>
