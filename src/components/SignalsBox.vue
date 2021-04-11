@@ -1,11 +1,11 @@
 <template>
-  <div class="signals-box">
+  <ul class="traffic-light__box">
     <CircleSignal
       v-for="signal of signals" :key="signal.id"
       v-bind:signal="signal"
       @change-signal="changeSignal"
     />
-  </div>
+  </ul>
 </template>
 
 <script>
@@ -29,7 +29,7 @@ export default {
 </script>
 
 <style>
-.signals-box {
+.traffic-light__box {
   background:#333;
   width: 150px;
   height: 440px;
@@ -39,5 +39,6 @@ export default {
   padding: 1px 0;
   border: 6px solid #000;
   margin: 0 auto;
+  list-style: none;
 }
 </style>

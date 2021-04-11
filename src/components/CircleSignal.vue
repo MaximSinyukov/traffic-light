@@ -1,15 +1,15 @@
 <template>
-  <div
-    class="circle-signal"
+  <li
+    class="traffic-light__signal"
     v-bind:class="[
-      signal.colorBack && `circle-signal_${signal.colorBack}`,
-      signal.active && 'circle-signal_active'
+      signal.colorBack && `traffic-light__signal_${signal.colorBack}`,
+      signal.active && 'traffic-light__signal_active'
     ]"
   >
-    <h2 class="circle-signal__counter">
+    <h2 class="traffic-light__counter">
       {{ this.counter }}
     </h2>
-  </div>
+  </li>
 </template>
 
 <script>
@@ -51,7 +51,7 @@ export default {
 </script>
 
 <style>
-.circle-signal {
+.traffic-light__signal {
   width: 120px;
   height: 120px;
   border-radius: 50%;
@@ -64,23 +64,23 @@ export default {
   opacity: .5;
 }
 
-.circle-signal_red {
+.traffic-light__signal_red {
   background-color: rgb(255, 0, 0);
 }
 
-.circle-signal_yellow {
+.traffic-light__signal_yellow {
   background-color: rgb(255, 255, 0);
 }
 
-.circle-signal_green {
+.traffic-light__signal_green {
   background-color: rgb(0, 255, 0);
 }
 
-.circle-signal_active {
+.traffic-light__signal_active {
   opacity: 1;
 }
 
-.circle-signal__counter {
+.traffic-light__counter {
   display: block;
   margin: auto 0;
   line-height: 80px;
@@ -90,7 +90,7 @@ export default {
   visibility: hidden;
 }
 
-.circle-signal_active .circle-signal__counter {
+.traffic-light__signal_active .traffic-light__counter {
   visibility: visible;
 }
 </style>
