@@ -7,7 +7,7 @@
     ]"
   >
     <h2 class="circle-signal__counter">
-      {{ signal.expirationTime }}
+      {{ this.counter }}
     </h2>
   </div>
 </template>
@@ -18,6 +18,33 @@ export default {
     signal: {
       type: Object,
       require: true
+    }
+  },
+  data() {
+    return {
+      counter: this.signal.expirationTime
+    }
+  },
+  methods: {
+    startCounter() {
+      if (this.$route.params.color === this.signal.colorBack) {
+      const interval = setInterval(() => {
+        this.counter--
+        if (this.counter === 0) {
+          clearInterval(interval)
+          this.$emit('change-signal', this.signal.id)
+          this.counter = this.signal.expirationTime
+        }
+      }, 1000)
+      }
+    }
+  },
+  mounted() {
+    this.startCounter()
+  },
+  watch: {
+    '$route' (to, from) {
+      this.startCounter()
     }
   }
 }
@@ -33,7 +60,7 @@ export default {
   line-height: 120px;
   display: flex;
   justify-content: center;
-  transition: background-color 0.5s ease-out;
+  transition: opacity .5s ease-out;
   opacity: .5;
 }
 
@@ -50,7 +77,7 @@ export default {
 }
 
 .circle-signal_active {
-    opacity: 1;
+  opacity: 1;
 }
 
 .circle-signal__counter {

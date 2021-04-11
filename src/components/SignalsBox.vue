@@ -3,6 +3,7 @@
     <CircleSignal
       v-for="signal of signals" :key="signal.id"
       v-bind:signal="signal"
+      @change-signal="changeSignal"
     />
   </div>
 </template>
@@ -18,6 +19,11 @@ export default {
   },
   components: {
     CircleSignal
+  },
+  methods: {
+    changeSignal(id) {
+      this.$emit('change-signal', id)
+    }
   }
 }
 </script>

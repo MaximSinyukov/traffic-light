@@ -1,30 +1,8 @@
 <template>
   <div id="app">
-    <h1>Traffic light</h1>
-    <SignalsBox
-      v-bind:signals="signals"
-    />
+    <router-view />
   </div>
 </template>
-
-<script>
-import SignalsBox from '@/components/SignalsBox'
-export default {
-  name: 'app',
-  data() {
-    return {
-      signals: [
-        {id: 1, colorBack: 'red', expirationTime: 10, active: false},
-        {id: 2, colorBack: 'yellow', expirationTime: 3, active: false},
-        {id: 3, colorBack: 'green', expirationTime: 15, active: false},
-      ]
-    }
-  },
-  components: {
-    SignalsBox
-  }
-}
-</script>
 
 <style>
 #app {
@@ -36,11 +14,5 @@ export default {
   -moz-text-size-adjust: 100%;
   text-align: center;
   color: #2c3e50;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: calc(100vh - 16px);
-  min-height: 530px;
-  justify-content: center;
 }
 </style>
