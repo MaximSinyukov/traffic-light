@@ -25,7 +25,8 @@ export default {
       counter: JSON.parse(localStorage.getItem('id')) === this.signal.id
       && JSON.parse(localStorage.getItem('saveMode'))
         ? JSON.parse(localStorage.getItem('currentTime'))
-        : this.signal.expirationTime
+        : this.signal.expirationTime,
+      blinkMode: false
     }
   },
   mounted() {
@@ -55,14 +56,17 @@ export default {
       }
     },
     blink() {
-      if (this.counter === 3) {
-        let blinkCounter = 0;
+      if (this.counter <= 3 && !this.blinkMode && this.counter >= 1 && this.signal.colorBack !== 'yellow') {
+        let blinkCounter = 0
+        this.blinkMode = true
+        const blinksCount = (this.counter * 4) - 1
         const blinkInterval = setInterval(() => {
           blinkCounter++
           this.signal.active = !this.signal.active
-          if (blinkCounter === 11) {
+          if (blinkCounter === blinksCount) {
             clearInterval(blinkInterval)
             this.signal.active = true
+            this.blinkMode = false
           }
         }, 250)
       }
