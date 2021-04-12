@@ -22,7 +22,18 @@ export default {
   },
   data() {
     return {
-      counter: this.signal.expirationTime
+      counter: JSON.parse(localStorage.getItem('id')) === this.signal.id
+      && JSON.parse(localStorage.getItem('saveMode'))
+        ? JSON.parse(localStorage.getItem('currentTime'))
+        : this.signal.expirationTime
+    }
+  },
+  mounted() {
+    this.startCounter()
+  },
+  watch: {
+    '$route' (to, from) {
+      this.startCounter()
     }
   },
   methods: {
@@ -30,8 +41,12 @@ export default {
       if (this.$route.params.color === this.signal.colorBack) {
       const interval = setInterval(() => {
         this.counter--
+        if (JSON.parse(localStorage.getItem('saveMode'))) {
+          localStorage.setItem('id', this.signal.id)
+          localStorage.setItem('currentTime', this.counter)
+        }
         this.blink()
-        if (this.counter === 0) {
+        if (this.counter <= 0) {
           clearInterval(interval)
           this.$emit('change-signal', this.signal.id)
           this.counter = this.signal.expirationTime
@@ -51,14 +66,6 @@ export default {
           }
         }, 250)
       }
-    }
-  },
-  mounted() {
-    this.startCounter()
-  },
-  watch: {
-    '$route' (to, from) {
-      this.startCounter()
     }
   }
 }
