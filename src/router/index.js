@@ -10,7 +10,6 @@ export default new VueRouter({
     {
       path: '/:color',
       component: TrafficLight
-
     }
   ]
 })

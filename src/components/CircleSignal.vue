@@ -22,6 +22,7 @@ export default {
   },
   data() {
     return {
+      // проверяем включен ли мод на сохранение и есть ли информация для вывода
       counter: JSON.parse(localStorage.getItem('id')) === this.signal.id
       && JSON.parse(localStorage.getItem('saveMode'))
         ? JSON.parse(localStorage.getItem('currentTime'))
@@ -42,6 +43,7 @@ export default {
       if (this.$route.params.color === this.signal.colorBack) {
       const interval = setInterval(() => {
         this.counter--
+        // сохраняем состояние только при включенном чекбоксе
         if (JSON.parse(localStorage.getItem('saveMode'))) {
           localStorage.setItem('id', this.signal.id)
           localStorage.setItem('currentTime', this.counter)
@@ -56,9 +58,11 @@ export default {
       }
     },
     blink() {
+      // исключаем желтый сигнал, повторные вызовы setInterval и мигание при значениях меньше 1
       if (this.counter <= 3 && !this.blinkMode && this.counter >= 1 && this.signal.colorBack !== 'yellow') {
         let blinkCounter = 0
         this.blinkMode = true
+        // запоминаем вошедший счетчик
         const blinksCount = (this.counter * 4) - 1
         const blinkInterval = setInterval(() => {
           blinkCounter++

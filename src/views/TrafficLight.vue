@@ -25,7 +25,9 @@ export default {
     }
   },
   created() {
+    // если в localStorage нет такого свойства, то добавляем его
     !localStorage.getItem('saveMode') && localStorage.setItem('direction', 0)
+    // запускаем необходимые манипуляции при создании компонента и наличии у него чекбокса на сохранение с сохраненным состоянием
     if(JSON.parse(localStorage.getItem('saveMode')) && localStorage.getItem('id')) {
       const id = JSON.parse(localStorage.getItem('id'))
       const currentTime = JSON.parse(localStorage.getItem('currentTime'))
@@ -47,6 +49,7 @@ export default {
     StateSaver
   },
   methods: {
+    // методя для реагирования на событие смены сигнала от дочернего компонента
     changeSignal(id) {
       if (id === 2 || id === 0) {
         this.direction = id

@@ -22,6 +22,7 @@ export default {
     this.checked = this.saveMode
   },
   watch: {
+    // отлавливаем события чекбокса
     saveMode(newMode) {
       this.checked = newMode
     }
