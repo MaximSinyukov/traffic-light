@@ -8,32 +8,28 @@
   </label>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      checked: false,
-      saveMode: localStorage.getItem('saveMode')
-        ? JSON.parse(localStorage.getItem('saveMode'))
-        : false
-    }
-  },
-  mounted() {
-    this.checked = this.saveMode
-  },
-  watch: {
-    // отлавливаем события чекбокса
-    saveMode(newMode) {
-      this.checked = newMode
-    }
-  },
-  methods: {
-    setMode() {
-      localStorage.setItem('saveMode', !this.saveMode)
-      this.saveMode = !this.saveMode
-    }
+<script setup>
+  import { ref, computed, watch, onMounted } from 'vue';
+
+  let checked = ref(false);
+  let saveMode = ref(false);
+
+  if (localStorage.getItem('saveMode')) {
+    saveMode.value = JSON.parse(localStorage.getItem('saveMode'));
   }
-}
+
+  const setMode = () => {
+    localStorage.setItem('saveMode', !saveMode.value);
+    saveMode.value = !saveMode.value;
+  };
+
+  onMounted(() => {
+    checked.value = saveMode.value;
+  });
+
+  watch(() => saveMode, (newMode) => {
+    checked.value = newMode;
+  });
 </script>
 
 <style>

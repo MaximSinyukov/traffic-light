@@ -2,31 +2,28 @@
   <ul class="traffic-light__box">
     <CircleSignal
       v-for="signal of signals" :key="signal.id"
-      v-bind:signal="signal"
+      :signal="signal"
       @change-signal="changeSignal"
     />
   </ul>
 </template>
 
-<script>
+<script setup>
 import CircleSignal from '@/components/CircleSignal.vue';
 
-export default {
-  props: {
-    signals: {
-      type: Array,
-      require: true
-    }
-  },
-  components: {
-    CircleSignal
-  },
-  methods: {
-    changeSignal(id) {
-      this.$emit('change-signal', id)
-    }
-  }
-}
+import { toRefs } from 'vue';
+
+const emit = defineEmits(['change-signal'])
+
+const props = defineProps({
+  signals: Array,
+});
+
+const { signals } = toRefs(props);
+
+const changeSignal = (id) => {
+  emit('change-signal', id);
+};
 </script>
 
 <style>

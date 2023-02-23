@@ -7,76 +7,80 @@
     ]"
   >
     <h2 class="traffic-light__counter">
-      {{ this.counter }}
+      {{ counter }}
     </h2>
   </li>
 </template>
 
-<script>
-export default {
-  props: {
-    signal: {
-      type: Object,
-      require: true
-    }
-  },
-  data() {
-    return {
-      // проверяем включен ли мод на сохранение и есть ли информация для вывода
-      counter: JSON.parse(localStorage.getItem('id')) === this.signal.id
-      && JSON.parse(localStorage.getItem('saveMode'))
-        ? JSON.parse(localStorage.getItem('currentTime'))
-        : this.signal.expirationTime,
-      blinkMode: false
-    }
-  },
-  mounted() {
-    this.startCounter()
-  },
-  watch: {
-    '$route' (to, from) {
-      this.startCounter()
-    }
-  },
-  methods: {
-    startCounter() {
-      if (this.$route.params.color === this.signal.colorBack) {
+<script setup>
+  import { toRefs, ref, onMounted, watch, reactive } from 'vue';
+  import { useRoute } from 'vue-router';
+
+  const props = defineProps({
+    signal: Object,
+  });
+
+  const { signal } = toRefs(props);
+  const route = useRoute();
+  const emit = defineEmits(['change-signal']);
+
+  let counter = ref(0);
+  let blinkMode = ref(false);
+
+  counter.value = JSON.parse(localStorage.getItem('id')) === signal.value.id && JSON.parse(localStorage.getItem('saveMode'))
+    ? JSON.parse(localStorage.getItem('currentTime'))
+    : signal.value.expirationTime;
+
+  const startCounter = () => {
+    if (route.params.color === signal.value.colorBack) {
       const interval = setInterval(() => {
-        this.counter--
+        counter.value--;
         // сохраняем состояние только при включенном чекбоксе
         if (JSON.parse(localStorage.getItem('saveMode'))) {
-          localStorage.setItem('id', this.signal.id)
-          localStorage.setItem('currentTime', this.counter)
+          localStorage.setItem('id', signal.value.id)
+          localStorage.setItem('currentTime', counter.value)
         }
-        this.blink()
-        if (this.counter <= 0) {
+        blink()
+        if (counter.value <= 0) {
           clearInterval(interval)
-          this.$emit('change-signal', this.signal.id)
-          this.counter = this.signal.expirationTime
+          emit('change-signal', signal.value.id)
+          counter.value = signal.value.expirationTime
         }
-      }, 1000)
-      }
-    },
-    blink() {
-      // исключаем желтый сигнал, повторные вызовы setInterval и мигание при значениях меньше 1
-      if (this.counter <= 3 && !this.blinkMode && this.counter >= 1 && this.signal.colorBack !== 'yellow') {
-        let blinkCounter = 0
-        this.blinkMode = true
-        // запоминаем вошедший счетчик
-        const blinksCount = (this.counter * 4) - 1
-        const blinkInterval = setInterval(() => {
-          blinkCounter++
-          this.signal.active = !this.signal.active
-          if (blinkCounter === blinksCount) {
-            clearInterval(blinkInterval)
-            this.signal.active = true
-            this.blinkMode = false
-          }
-        }, 250)
-      }
+      }, 1000);
+    }
+  };
+
+  const blink = () => { // todo check switch window problem for method
+    if (counter.value <= 3 && !blinkMode.value && counter.value >= 1 && signal.value.colorBack !== 'yellow') {
+      let blinkCounter = 0
+      blinkMode.value = true
+      // запоминаем вошедший счетчик
+      const blinksCount = (counter.value * 4) - 1
+      const blinkInterval = setInterval(() => {
+        blinkCounter++
+        signal.value.active = !signal.value.active
+        if (blinkCounter === blinksCount) {
+          clearInterval(blinkInterval)
+          signal.value.active = true
+          blinkMode.value = false
+        }
+      }, 250)
     }
   }
-}
+
+  onMounted(() => {
+    startCounter();
+  });
+
+  watch(
+    () => route.params,
+    () => {
+      startCounter();
+    },
+    // {
+    //   deep:true
+    // }
+  );
 </script>
 
 <style>
