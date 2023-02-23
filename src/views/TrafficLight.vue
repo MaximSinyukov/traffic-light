@@ -10,8 +10,9 @@
 </template>
 
 <script>
-import SignalsBox from '@/components/SignalsBox'
-import StateSaver from '@/components/StateSaver'
+import SignalsBox from '@/components/SignalsBox.vue';
+import StateSaver from '@/components/StateSaver.vue';
+
 export default {
   name: 'app',
   data() {

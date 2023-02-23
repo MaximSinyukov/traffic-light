@@ -9,7 +9,8 @@
 </template>
 
 <script>
-import CircleSignal from '@/components/CircleSignal'
+import CircleSignal from '@/components/CircleSignal.vue';
+
 export default {
   props: {
     signals: {
