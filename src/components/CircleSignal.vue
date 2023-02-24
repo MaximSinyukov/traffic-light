@@ -1,20 +1,22 @@
 <template>
   <li
-    class="traffic-light__signal"
-    v-bind:class="[
-      signal.colorBack && `traffic-light__signal_${signal.colorBack}`,
-      signal.active && 'traffic-light__signal_active'
-    ]"
-  >
-    <h2 class="traffic-light__counter">
-      {{ counter }}
+  class="traffic-light__signal"
+  :class="[
+    signal.color && `traffic-light__signal_${signal.color}`,
+    isActiveColor && 'traffic-light__signal_active'
+  ]">
+    <h2
+    v-if="isVisibleText"
+    class="traffic-light__counter">
+      {{ store.lightTimer }}
     </h2>
   </li>
 </template>
 
 <script setup>
-  import { toRefs, ref, onMounted, watch, reactive } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { toRefs, ref, watch, computed } from 'vue';
+  import { useLightsStore } from '@/store/lights'
+  import { useRoute, useRouter } from 'vue-router';
 
   const props = defineProps({
     signal: Object,
@@ -22,64 +24,102 @@
 
   const { signal } = toRefs(props);
   const route = useRoute();
-  const emit = defineEmits(['change-signal']);
+  const router = useRouter();
+  const store = useLightsStore();
 
-  let counter = ref(0);
-  let blinkMode = ref(false);
+  const counter = ref(0);
+  const isActiveBlink = ref(false);
+  const blinkId = ref(null);
+  const timerId = ref(null);
 
-  counter.value = JSON.parse(localStorage.getItem('id')) === signal.value.id && JSON.parse(localStorage.getItem('saveMode'))
-    ? JSON.parse(localStorage.getItem('currentTime'))
-    : signal.value.expirationTime;
+  const isActiveColor = computed(() => {
+    return !isActiveBlink.value && route.params.color === signal.value.color;
+  });
+
+  const isVisibleText = computed(() => {
+    return route.params.color === signal.value?.color;
+  });
+
+  const clearSignal = () => {
+    clearInterval(timerId.value);
+    timerId.value = null;
+    counter.value = 0;
+  };
 
   const startCounter = () => {
-    if (route.params.color === signal.value.colorBack) {
-      const interval = setInterval(() => {
-        counter.value--;
-        // сохраняем состояние только при включенном чекбоксе
-        if (JSON.parse(localStorage.getItem('saveMode'))) {
-          localStorage.setItem('id', signal.value.id)
-          localStorage.setItem('currentTime', counter.value)
+    clearSignal();
+    if (route.params.color === signal.value.color) {
+      timerId.value = setInterval(() => {
+        counter.value++;
+
+        if (store.saveMode) {
+          localStorage.setItem('light', JSON.stringify({
+            ...signal.value,
+            expirationTime: signal.value.expirationTime - counter.value,
+            direction: store.colorDirection,
+          }));
         }
-        blink()
-        if (counter.value <= 0) {
-          clearInterval(interval)
-          emit('change-signal', signal.value.id)
-          counter.value = signal.value.expirationTime
-        }
+
+        store.changeLight({
+          ...signal.value,
+          expirationTime: signal.value.expirationTime - counter.value,
+        });
       }, 1000);
     }
   };
 
-  const blink = () => { // todo check switch window problem for method
-    if (counter.value <= 3 && !blinkMode.value && counter.value >= 1 && signal.value.colorBack !== 'yellow') {
-      let blinkCounter = 0
-      blinkMode.value = true
-      // запоминаем вошедший счетчик
-      const blinksCount = (counter.value * 4) - 1
-      const blinkInterval = setInterval(() => {
-        blinkCounter++
-        signal.value.active = !signal.value.active
-        if (blinkCounter === blinksCount) {
-          clearInterval(blinkInterval)
-          signal.value.active = true
-          blinkMode.value = false
-        }
-      }, 250)
+  const changeBlink = () => {
+    if (blinkId.value) {
+      clearInterval(blinkId.value);
+      blinkId.value = null;
+      isActiveBlink.value = false;
+      return;
     }
-  }
 
-  onMounted(() => {
-    startCounter();
-  });
+    blinkId.value = setInterval(() => {
+      isActiveBlink.value = !isActiveBlink.value;
+    }, 250);
+  };
 
   watch(
-    () => route.params,
-    () => {
+    () => route.params.color,
+    (newColor) => {
+      if (newColor === 'red') {
+        store.colorDirection = 0;
+      }
+
+      if (newColor === 'green') {
+        store.colorDirection = 1;
+      }
+
       startCounter();
     },
-    // {
-    //   deep:true
-    // }
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => store.lightTimer,
+    (newTime) => {
+      if (route.params.color !== signal.value.color) return;
+
+      if (newTime === 3) {
+        changeBlink();
+        return;
+      }
+
+      if (newTime === 0) {
+        changeBlink();
+        router.push(`/${store.colorDirection
+          ? store.colorsArray[signal.value.id - 1]
+          : store.colorsArray[signal.value.id + 1]
+        }`);
+      }
+    },
+    {
+      immediate: true,
+    }
   );
 </script>
 
