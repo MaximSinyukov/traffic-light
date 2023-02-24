@@ -1,39 +1,26 @@
 <template>
   <label class="traffic-light__checkbox" for="saveData">
     Сохранять состояние
+
     <input type="checkbox" id="saveData"
-      v-model="checked"
-      @change="setMode"
-    >
+    v-model="customerChecked">
   </label>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      checked: false,
-      saveMode: localStorage.getItem('saveMode')
-        ? JSON.parse(localStorage.getItem('saveMode'))
-        : false
-    }
-  },
-  mounted() {
-    this.checked = this.saveMode
-  },
-  watch: {
-    // отлавливаем события чекбокса
-    saveMode(newMode) {
-      this.checked = newMode
-    }
-  },
-  methods: {
-    setMode() {
-      localStorage.setItem('saveMode', !this.saveMode)
-      this.saveMode = !this.saveMode
-    }
-  }
-}
+<script setup>
+  import { useLightsStore } from '@/store/lights';
+  import { ref, computed } from 'vue';
+
+  const store = useLightsStore();
+
+  const customerChecked = computed({
+    get: () => {
+      return store.saveMode;
+    },
+    set: (value) => {
+      store.changeMode(value);
+    },
+  });
 </script>
 
 <style>

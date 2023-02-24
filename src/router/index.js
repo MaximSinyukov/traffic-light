@@ -1,15 +1,24 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import TrafficLight from '@/views/TrafficLight'
+import { createRouter, createWebHistory } from 'vue-router'
+const TrafficLight = () => import('@/views/TrafficLight.vue');
 
-Vue.use(VueRouter)
+const routes =[
+  {
+    path: '/:color',
+    component: TrafficLight
+  },
+  {
+    path: '/',
+    redirect: '/red'
+  },
+  {
+    path: '/**',
+    redirect: '/red'
+  },
+];
 
-export default new VueRouter({
-  mode: 'history',
-  routes: [
-    {
-      path: '/:color',
-      component: TrafficLight
-    }
-  ]
-})
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+export default router;

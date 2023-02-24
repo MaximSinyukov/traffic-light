@@ -1,11 +1,15 @@
-# :vertical_traffic_light: traffic-light
+# :vertical_traffic_light: traffic-light (v1.0.0)
 
 <p>
   <img alt="Status" src="https://img.shields.io/badge/status-released-green" >
   <img alt="Author" src="https://img.shields.io/badge/author-MaximSinyukov-blue" />
 </p>
 
-## Мой первый проект на Vue.js :tada:
+## Что нового в v1.0.0:grey_question:
+- Изменен сборщик проекта с `webpack` до `vite`
+- Обновлен vue с vue2 до `vue3`
+- Добавлен редирект со всех несуществующих роутов на стандартный `/red` или уже сохраненный
+- Рефакторинг компонентов под `vue3` с обновлением логики работы светофора
 
 ## :book: Суть проекта
 

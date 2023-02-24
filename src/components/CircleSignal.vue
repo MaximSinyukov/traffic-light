@@ -1,82 +1,124 @@
 <template>
   <li
-    class="traffic-light__signal"
-    v-bind:class="[
-      signal.colorBack && `traffic-light__signal_${signal.colorBack}`,
-      signal.active && 'traffic-light__signal_active'
-    ]"
-  >
-    <h2 class="traffic-light__counter">
-      {{ this.counter }}
+  class="traffic-light__signal"
+  :class="[
+    signal.color && `traffic-light__signal_${signal.color}`,
+    isActiveColor && 'traffic-light__signal_active'
+  ]">
+    <h2
+    v-if="isVisibleText"
+    class="traffic-light__counter">
+      {{ store.lightTimer }}
     </h2>
   </li>
 </template>
 
-<script>
-export default {
-  props: {
-    signal: {
-      type: Object,
-      require: true
-    }
-  },
-  data() {
-    return {
-      // проверяем включен ли мод на сохранение и есть ли информация для вывода
-      counter: JSON.parse(localStorage.getItem('id')) === this.signal.id
-      && JSON.parse(localStorage.getItem('saveMode'))
-        ? JSON.parse(localStorage.getItem('currentTime'))
-        : this.signal.expirationTime,
-      blinkMode: false
-    }
-  },
-  mounted() {
-    this.startCounter()
-  },
-  watch: {
-    '$route' (to, from) {
-      this.startCounter()
-    }
-  },
-  methods: {
-    startCounter() {
-      if (this.$route.params.color === this.signal.colorBack) {
-      const interval = setInterval(() => {
-        this.counter--
-        // сохраняем состояние только при включенном чекбоксе
-        if (JSON.parse(localStorage.getItem('saveMode'))) {
-          localStorage.setItem('id', this.signal.id)
-          localStorage.setItem('currentTime', this.counter)
+<script setup>
+  import { toRefs, ref, watch, computed } from 'vue';
+  import { useLightsStore } from '@/store/lights'
+  import { useRoute, useRouter } from 'vue-router';
+
+  const props = defineProps({
+    signal: Object,
+  });
+
+  const { signal } = toRefs(props);
+  const route = useRoute();
+  const router = useRouter();
+  const store = useLightsStore();
+
+  const isActiveBlink = ref(false);
+  const blinkId = ref(null);
+  const timerId = ref(null);
+
+  const isActiveColor = computed(() => {
+    return !isActiveBlink.value && route.params.color === signal.value.color;
+  });
+
+  const isVisibleText = computed(() => {
+    return route.params.color === signal.value?.color;
+  });
+
+  const clearSignal = () => {
+    clearInterval(timerId.value);
+    timerId.value = null;
+  };
+
+  const startCounter = () => {
+    clearSignal();
+    if (route.params.color === signal.value.color) {
+      timerId.value = setInterval(() => {
+        if (store.saveMode) {
+          localStorage.setItem('light', JSON.stringify({
+            ...signal.value,
+            expirationTime: store.lightTimer - 1,
+            direction: store.colorDirection,
+          }));
         }
-        this.blink()
-        if (this.counter <= 0) {
-          clearInterval(interval)
-          this.$emit('change-signal', this.signal.id)
-          this.counter = this.signal.expirationTime
-        }
-      }, 1000)
+
+        store.changeLight({
+          ...signal.value,
+          expirationTime: store.lightTimer - 1,
+        });
+      }, 1000);
+    }
+  };
+
+  const changeBlink = () => {
+    if (blinkId.value) {
+      clearInterval(blinkId.value);
+      blinkId.value = null;
+      isActiveBlink.value = false;
+      return;
+    }
+
+    blinkId.value = setInterval(() => {
+      isActiveBlink.value = !isActiveBlink.value;
+    }, 250);
+  };
+
+  watch(
+    () => route.params.color,
+    (newColor) => {
+      if (newColor === 'red') {
+        store.colorDirection = 0;
+      }
+
+      if (newColor === 'green') {
+        store.colorDirection = 1;
+      }
+
+      startCounter();
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  watch(
+    () => store.lightTimer,
+    (newTime) => {
+      if (route.params.color !== signal.value.color) return;
+
+      if (newTime <= 3 && !blinkId.value) {
+        changeBlink();
+        return;
+      }
+
+      if (newTime === 0) {
+        changeBlink();
+        router.push(`/${store.colorDirection
+          ? store.colorsArray[signal.value.id - 1]
+          : store.colorsArray[signal.value.id + 1]
+        }`);
+
+        store.changeLight({ expirationTime: null, })
       }
     },
-    blink() {
-      // исключаем желтый сигнал, повторные вызовы setInterval и мигание при значениях меньше 1
-      if (this.counter <= 3 && !this.blinkMode && this.counter >= 1 && this.signal.colorBack !== 'yellow') {
-        let blinkCounter = 0
-        this.blinkMode = true
-        // запоминаем вошедший счетчик
-        const blinksCount = (this.counter * 4) - 1
-        const blinkInterval = setInterval(() => {
-          blinkCounter++
-          this.signal.active = !this.signal.active
-          if (blinkCounter === blinksCount) {
-            clearInterval(blinkInterval)
-            this.signal.active = true
-            this.blinkMode = false
-          }
-        }, 250)
-      }
+    {
+      immediate: true,
     }
-  }
-}
+  );
 </script>
 
 <style>
