@@ -3,14 +3,24 @@
     Сохранять состояние
 
     <input type="checkbox" id="saveData"
-    :value="store.saveMode"
-    @change="store.changeMode">
+    v-model="customerChecked">
   </label>
 </template>
 
 <script setup>
   import { useLightsStore } from '@/store/lights';
+  import { ref, computed } from 'vue';
+
   const store = useLightsStore();
+
+  const customerChecked = computed({
+    get: () => {
+      return store.saveMode;
+    },
+    set: (value) => {
+      store.changeMode(value);
+    },
+  });
 </script>
 
 <style>

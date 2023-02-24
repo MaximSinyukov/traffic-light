@@ -27,7 +27,6 @@
   const router = useRouter();
   const store = useLightsStore();
 
-  const counter = ref(0);
   const isActiveBlink = ref(false);
   const blinkId = ref(null);
   const timerId = ref(null);
@@ -43,26 +42,23 @@
   const clearSignal = () => {
     clearInterval(timerId.value);
     timerId.value = null;
-    counter.value = 0;
   };
 
   const startCounter = () => {
     clearSignal();
     if (route.params.color === signal.value.color) {
       timerId.value = setInterval(() => {
-        counter.value++;
-
         if (store.saveMode) {
           localStorage.setItem('light', JSON.stringify({
             ...signal.value,
-            expirationTime: signal.value.expirationTime - counter.value,
+            expirationTime: store.lightTimer - 1,
             direction: store.colorDirection,
           }));
         }
 
         store.changeLight({
           ...signal.value,
-          expirationTime: signal.value.expirationTime - counter.value,
+          expirationTime: store.lightTimer - 1,
         });
       }, 1000);
     }
@@ -104,7 +100,7 @@
     (newTime) => {
       if (route.params.color !== signal.value.color) return;
 
-      if (newTime === 3) {
+      if (newTime <= 3 && !blinkId.value) {
         changeBlink();
         return;
       }
@@ -115,6 +111,8 @@
           ? store.colorsArray[signal.value.id - 1]
           : store.colorsArray[signal.value.id + 1]
         }`);
+
+        store.changeLight({ expirationTime: null, })
       }
     },
     {

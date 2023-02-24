@@ -45,7 +45,9 @@
   watch(
     () => route.params.color,
     (newColor) => {
-      store.changeLight({ ...store.lightSignals[newColor], direction: 0 });
+      if (store.lightTimer === null) {
+        store.changeLight({ ...store.lightSignals[newColor], direction: 0 });
+      }
     },
     {
       immediate: true,
